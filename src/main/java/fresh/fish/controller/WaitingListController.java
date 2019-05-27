@@ -2,10 +2,10 @@ package fresh.fish.controller;
 
 
 
-import fresh.fish.controller.requests.ProductCreateRequest;
 import fresh.fish.controller.requests.SearchCriteria;
-import fresh.fish.domain.Product;
-import fresh.fish.repository.ProductDao;
+import fresh.fish.controller.requests.WaitingListCreateRequest;
+import fresh.fish.domain.jdbc_template.WaitingList;
+import fresh.fish.repository.jdbc_template.WaitingDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,70 +19,61 @@ import java.util.List;
 public class WaitingListController {
 
     @Autowired
-    private ProductDao prodDao;
+    private WaitingDao waitingDao;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ResponseEntity<List<Product>> getProducts() {
-        return new ResponseEntity<>(prodDao.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<WaitingList>> getWaitingLists() {
+        return new ResponseEntity<>(waitingDao.findAll(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity <String> getProductById(@PathVariable Long id) {
-        Product product = prodDao.findById(id);
-        return new ResponseEntity<>(product.toString(), HttpStatus.OK);
+    public ResponseEntity <String> getWaitingListById(@PathVariable Long id) {
+        WaitingList waitingList = waitingDao.findById(id);
+        return new ResponseEntity<>(waitingList.toString(), HttpStatus.OK);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Product> createProduct(@RequestBody ProductCreateRequest request) {
-        Product product = new Product();
-        setFields(product, request);
+    public ResponseEntity<WaitingList> createWaitingList(@RequestBody WaitingListCreateRequest request) {
+        WaitingList waitingList = new WaitingList();
+        setFields(waitingList, request);
 
-        Product savedProduct = prodDao.save(product);
-        return new ResponseEntity<>(savedProduct, HttpStatus.OK);
+        WaitingList savedWaitingList = waitingDao.save(waitingList);
+        return new ResponseEntity<>(savedWaitingList, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> updateProduct(@PathVariable("id")  Long prodId, @RequestBody ProductCreateRequest request) {
+    public ResponseEntity<String> updateWaitingList(@PathVariable("id")  Long waitId, @RequestBody WaitingListCreateRequest request) {
 
-        Product product = prodDao.findById(prodId);
-        setFields(product, request);
-        prodDao.update(product);
+        WaitingList waitingList = waitingDao.findById(waitId);
+        setFields(waitingList, request);
+        waitingDao.update(waitingList);
 
-        return new ResponseEntity<>(product.toString(), HttpStatus.OK);
+        return new ResponseEntity<>(waitingList.toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Long> deleteProduct (@PathVariable ("id") Long prodId) {
-        prodDao.delete(prodId);
-        return new ResponseEntity<>(prodId, HttpStatus.OK);
+    public ResponseEntity<Long> deleteProduct (@PathVariable ("id") Long waitId) {
+        waitingDao.delete(waitId);
+        return new ResponseEntity<>(waitId, HttpStatus.OK);
     }
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<Product>> searchProduct(@ModelAttribute SearchCriteria criteria) {
-        List <Product> searchResult = prodDao.search(criteria.getQuery(), criteria.getLimit(), criteria.getOffset());
+    public ResponseEntity<List<WaitingList>> searchWaitingList(@ModelAttribute SearchCriteria criteria) {
+        List <WaitingList> searchResult = waitingDao.search(criteria.getQuery(), criteria.getLimit(), criteria.getOffset());
         return new ResponseEntity<>(searchResult, HttpStatus.OK);
     }
 
-    private void setFields(Product prod, ProductCreateRequest req) {
-        prod.setProdTitle(req.getProdTitle());
-        prod.setProdName(req.getProdName());
-        prod.setProdDescription(req.getProdDescription());
-        prod.setMeasure(req.getMeasure());
-        prod.setAmount(req.getAmount());
-        prod.setLot(req.getLot());
-        prod.setDeliveryDate(req.getDeliveryDate());
-        prod.setProductionPlace(req.getProductionPlace());
-        prod.setCostPrice(req.getCostPrice());
-        prod.setPrice(req.getPrice());
-        prod.setUrlPhoto(req.getUrlPhoto());
-        if (prod.getAmount()>0) prod.setAvailable(true); else prod.setAvailable(false);
+    private void setFields(WaitingList wList, WaitingListCreateRequest req) {
+        wList.setCustomerId(req.getCustomerId());
+        wList.setProductId(req.getProductId());
+        wList.setCount(req.getCount());
     }
 
 }

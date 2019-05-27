@@ -1,10 +1,12 @@
-package fresh.fish.controller;
+package fresh.fish.controller.hibernate;
 
 
 
 import fresh.fish.controller.requests.ProductCreateRequest;
 import fresh.fish.controller.requests.SearchCriteria;
+import fresh.fish.domain.hibernate.HibProduct;
 import fresh.fish.domain.jdbc_template.Product;
+import fresh.fish.repository.hibernate.HibProductDao;
 import fresh.fish.repository.jdbc_template.ProductDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,32 +17,32 @@ import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "/rest/products")
-public class ProductController {
+@RequestMapping(value = "/rest/hibernate/products")
+public class HibProductController {
 
     @Autowired
-    private ProductDao prodDao;
+    private HibProductDao prodDao;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<Product>> getProducts() {
+    public ResponseEntity<List<HibProduct>> getProducts() {
         return new ResponseEntity<>(prodDao.findAll(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity <Product> getProductById(@PathVariable Long id) {
-        Product product = prodDao.findById(id);
-        return new ResponseEntity<>(product, HttpStatus.OK);
+    public ResponseEntity <HibProduct> getProductById(@PathVariable Long id) {
+        HibProduct hibProduct = prodDao.findById(id);
+        return new ResponseEntity<>(hibProduct, HttpStatus.OK);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Product> createProduct(@RequestBody ProductCreateRequest request) {
-        Product product = new Product();
-        setFields(product, request);
+    public ResponseEntity<HibProduct> createProduct(@RequestBody ProductCreateRequest request) {
+        HibProduct hibProduct = new HibProduct();
+        setFields(hibProduct, request);
 
-        Product savedProduct = prodDao.save(product);
+        HibProduct savedProduct = prodDao.save(hibProduct);
         return new ResponseEntity<>(savedProduct, HttpStatus.OK);
     }
 
@@ -48,7 +50,7 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> updateProduct(@PathVariable("id")  Long prodId, @RequestBody ProductCreateRequest request) {
 
-        Product product = prodDao.findById(prodId);
+        HibProduct product = prodDao.findById(prodId);
         setFields(product, request);
         prodDao.update(product);
 
@@ -64,12 +66,12 @@ public class ProductController {
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<Product>> searchProduct(@ModelAttribute SearchCriteria criteria) {
-        List <Product> searchResult = prodDao.search(criteria.getQuery(), criteria.getLimit(), criteria.getOffset());
+    public ResponseEntity<List<HibProduct>> searchProduct(@ModelAttribute SearchCriteria criteria) {
+        List <HibProduct> searchResult = prodDao.search(criteria.getQuery(), criteria.getLimit(), criteria.getOffset());
         return new ResponseEntity<>(searchResult, HttpStatus.OK);
     }
 
-    private void setFields(Product prod, ProductCreateRequest req) {
+    private void setFields(HibProduct prod, ProductCreateRequest req) {
         prod.setProdTitle(req.getProdTitle());
         prod.setProdName(req.getProdName());
         prod.setProdDescription(req.getProdDescription());

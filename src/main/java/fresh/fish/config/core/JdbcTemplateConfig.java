@@ -28,7 +28,7 @@ public class JdbcTemplateConfig {
         return new NamedParameterJdbcTemplate(dataSource);
     }
 
-    @Bean("txManager")
+    @Bean("transactionManager")
     public DataSourceTransactionManager getTransactionManager() {
         return new DataSourceTransactionManager(dataSource);
     }

@@ -1,14 +1,12 @@
-package fresh.fish.controller;
+package fresh.fish.controller.hibernate;
 
 
 
-import fresh.fish.controller.requests.OrderCreateRequest;
-import fresh.fish.controller.requests.ProductCreateRequest;
+import fresh.fish.controller.requests.HibOrderCreateRequest;
 import fresh.fish.controller.requests.SearchCriteria;
-import fresh.fish.domain.jdbc_template.Order;
-import fresh.fish.domain.jdbc_template.Product;
-import fresh.fish.repository.jdbc_template.OrderDao;
-import fresh.fish.repository.jdbc_template.ProductDao;
+import fresh.fish.domain.hibernate.HibOrder;
+import fresh.fish.repository.hibernate.HibCustomerDao;
+import fresh.fish.repository.hibernate.HibOrderDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,42 +16,50 @@ import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "/rest/orders")
-public class OrderController {
+@RequestMapping(value = "/rest/hibernate/orders")
+public class HibOrderController {
 
     @Autowired
-    private OrderDao orderDao;
+    private HibOrderDao orderDao;
+
+    @Autowired
+    private HibCustomerDao customerDao;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ResponseEntity<List<Order>> getOrders() {
+    public ResponseEntity<List<HibOrder>> getOrders() {
         return new ResponseEntity<>(orderDao.findAll(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity <Order> getOrderById(@PathVariable Long id) {
-        Order order = orderDao.findById(id);
+    public ResponseEntity <HibOrder> getOrderById(@PathVariable Long id) {
+        HibOrder order = orderDao.findById(id);
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Order> createOrder(@RequestBody OrderCreateRequest request) {
-        Order order = new Order();
+    public ResponseEntity<HibOrder> createOrder(@RequestBody HibOrderCreateRequest request) {
+        HibOrder order = new HibOrder();
         setFields(order, request);
+//        order.setProducts();
+//        order.setPromos();
 
-        Order savedOrder = orderDao.save(order);
+        HibOrder savedOrder = orderDao.save(order);
         return new ResponseEntity<>(savedOrder, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Order> updateOrder(@PathVariable("id")  Long orderId, @RequestBody OrderCreateRequest request) {
+    public ResponseEntity<HibOrder> updateOrder(@PathVariable("id")  Long orderId, @RequestBody HibOrderCreateRequest request) {
 
-        Order order = orderDao.findById(orderId);
+        HibOrder order = orderDao.findById(orderId);
         setFields(order, request);
+        //        order.setProducts();
+//        order.setPromos();
+
         orderDao.update(order);
 
         return new ResponseEntity<>(order, HttpStatus.OK);
@@ -68,13 +74,13 @@ public class OrderController {
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<Order>> searchOrder(@ModelAttribute SearchCriteria criteria) {
-        List <Order> searchResult = orderDao.search(criteria.getQuery(), criteria.getLimit(), criteria.getOffset());
+    public ResponseEntity<List<HibOrder>> searchOrder(@ModelAttribute SearchCriteria criteria) {
+        List <HibOrder> searchResult = orderDao.search(criteria.getQuery(), criteria.getLimit(), criteria.getOffset());
         return new ResponseEntity<>(searchResult, HttpStatus.OK);
     }
 
-    private void setFields(Order order, OrderCreateRequest req) {
-        order.setCustomerId(req.getCustomerId());
+    private void setFields(HibOrder order, HibOrderCreateRequest req) {
+        order.setCustomer(customerDao.findById(req.getCustomerId()));
         order.setPersDiscountId(req.getPersDiscountId());
         order.setCurrencyCode(req.getCurrencyCode());
         order.setStatusId(req.getStatusId());
