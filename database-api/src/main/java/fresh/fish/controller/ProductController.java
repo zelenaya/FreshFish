@@ -11,11 +11,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "/rest/managed/products")
+@RequestMapping(value = "/rest/products")
 public class ProductController {
 
     @Autowired
@@ -25,6 +28,7 @@ public class ProductController {
     @ApiOperation(value = "Get all products from DB")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @Transactional
     public ResponseEntity<List<Product>> getProducts() {
         return new ResponseEntity<>(prodDao.findAll(), HttpStatus.OK);
     }
@@ -37,7 +41,7 @@ public class ProductController {
         return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Create new product. Please, don't enter text in Russian, my app is frightened it")
+    @ApiOperation(value = "Create new product")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Product> createProduct(@RequestBody ProductCreateRequest request) {
@@ -74,7 +78,7 @@ public class ProductController {
         return new ResponseEntity<>(prodId, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "You can search the product by name or title but only in English")
+    @ApiOperation(value = "You can search the product by name or title")
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Product>> searchProduct(@ModelAttribute SearchCriteria criteria) {
@@ -89,14 +93,14 @@ public class ProductController {
             prod.setProdName(req.getProdName());
         if (!req.getProdDescription().equals("string")&&!req.getProdDescription().isEmpty())
             prod.setProdDescription(req.getProdDescription());
-        if (!req.getMeasure().isEmpty())
+        if (!req.getMeasure().isEmpty()&&!req.getMeasure().equals("string"))
             prod.setMeasure(req.getMeasure());
         if (req.getAmount()!=0)
             prod.setAmount(req.getAmount());
         if (!req.getLot().equals("string")&&!req.getLot().isEmpty())
             prod.setLot(req.getLot());
 
-        prod.setDeliveryDate(req.getDeliveryDate());
+        prod.setDeliveryDate(new Timestamp(req.getDeliveryDate().getTime()));
         if (!req.getProductionPlace().equals("string")&&!req.getProductionPlace().isEmpty())
             prod.setProductionPlace(req.getProductionPlace());
         if (req.getCostPrice()!=0)

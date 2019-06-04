@@ -3,8 +3,10 @@ package fresh.fish.domain.hibernate;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.springframework.context.annotation.PropertySource;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Objects;
@@ -13,6 +15,7 @@ import java.util.Set;
 @Entity
 @Table(name = "products")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "productId")
+@PropertySource("classpath:messages.properties")
 public class HibProduct {
 
     @Id
@@ -24,6 +27,7 @@ public class HibProduct {
     private String prodTitle;
 
     @Column(name = "prod_name")
+    @Size(max = 30, message = "La longitud del nombre no debe ser mayor de 30 símbolos")
     private String prodName;
 
     @Column(name = "prod_describing")

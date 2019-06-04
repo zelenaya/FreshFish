@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "/rest/managed/waitinglists")
+@RequestMapping(value = "/rest/waitinglists")
 public class WaitingListController {
 
     @Autowired

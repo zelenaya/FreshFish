@@ -1,20 +1,14 @@
 package fresh.fish.domain.hibernate;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.Collections;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "customers")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "customerId")
 public class HibCustomer {
 
     @Id
@@ -35,7 +29,7 @@ public class HibCustomer {
     private Timestamp birthDate;
 
     @Column(name = "gender")
-    private Enum gender;
+    private String gender;
 
     @Column(name = "e-mail")
     private String email;
@@ -52,17 +46,10 @@ public class HibCustomer {
     @Column(name = "date_modificate")
     private Timestamp date_modificate;
 
-    @JsonManagedReference
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "customer")
-    private Set<HibOrder> orders = Collections.emptySet();
-
-//    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "orderProduct")
-//    private Set<HibWaitingList> hibWaitingLists = Collections.emptySet();
-
     public HibCustomer() {
     }
-//, Set<HibWaitingList> hibWaitingLists
-    public HibCustomer(Long userId, String name, String surname, Timestamp birthDate, Enum gender, String email, String phone_number, String adress, Timestamp date_created, Timestamp date_modificate, Set<HibOrder> orders) {
+
+    public HibCustomer(Long userId, String name, String surname, Timestamp birthDate, String gender, String email, String phone_number, String adress, Timestamp date_created, Timestamp date_modificate) {
         this.userId = userId;
         this.name = name;
         this.surname = surname;
@@ -73,8 +60,6 @@ public class HibCustomer {
         this.adress = adress;
         this.date_created = date_created;
         this.date_modificate = date_modificate;
-        this.orders = orders;
-      //  this.hibWaitingLists = hibWaitingLists;
     }
 
     public Long getCustomerId() {
@@ -117,11 +102,11 @@ public class HibCustomer {
         this.birthDate = birthDate;
     }
 
-    public Enum getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(Enum gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
@@ -165,24 +150,6 @@ public class HibCustomer {
         this.date_modificate = date_modificate;
     }
 
-    public Set<HibOrder> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(Set<HibOrder> orders) {
-        this.orders = orders;
-    }
-
-
-
-    //    public Set<HibWaitingList> getHibWaitingLists() {
-//        return hibWaitingLists;
-//    }
-//
-//    public void setHibWaitingLists(Set<HibWaitingList> hibWaitingLists) {
-//        this.hibWaitingLists = hibWaitingLists;
-//    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -199,7 +166,6 @@ public class HibCustomer {
                 Objects.equals(adress, that.adress) &&
                 Objects.equals(date_created, that.date_created) &&
                 Objects.equals(date_modificate, that.date_modificate);// &&
-             //   Objects.equals(orders, that.orders);
     }
 
     @Override
@@ -209,7 +175,19 @@ public class HibCustomer {
 
     @Override
     public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+        return "HibCustomer{" +
+                "customerId=" + customerId +
+                ", userId=" + userId +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", birthDate=" + birthDate +
+                ", gender='" + gender + '\'' +
+                ", email='" + email + '\'' +
+                ", phone_number='" + phone_number + '\'' +
+                ", adress='" + adress + '\'' +
+                ", date_created=" + date_created +
+                ", date_modificate=" + date_modificate +
+                '}';
     }
 }
 

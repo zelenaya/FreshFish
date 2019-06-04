@@ -10,12 +10,15 @@ import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @Qualifier("hibProductDaoImpl")
@@ -28,6 +31,7 @@ public class HibProductDaoImpl implements HibProductDao {
     @Override
     public List<HibProduct> findAll() {
         try (Session session = sessionFactory.openSession()) {
+          //  return session.createQuery("from HibProduct hp", HibProduct.class).getResultList();
             return session.createQuery("select hp from HibProduct hp", HibProduct.class).getResultList();
         }
     }
@@ -40,9 +44,17 @@ public class HibProductDaoImpl implements HibProductDao {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void delete(Long id) {
         try (Session session = sessionFactory.openSession()) {
+            HibProduct hibPr = session.load(HibProduct.class, id);
+            //session.remove(hibPr);
+           //session.delete(hibPr);
             session.remove(findById(id));
+            //session.delete(findById(id));
+//            session.createQuery("DELETE HibProduct WHERE product_id = :param")
+//                    .setParameter("name", "id")
+//                    .executeUpdate();
         }
     }
 
@@ -68,85 +80,28 @@ public class HibProductDaoImpl implements HibProductDao {
         }
     }
 
-//    @Override
-//    public HibProduct findByLogin(String login) {
-//        try (Session session = sessionFactory.openSession()) {
-//
-//            //SQLQuery
-//
-////            NativeQuery<TestUser> nativeQuery = session.createNativeQuery("select * from test_user", TestUser.class);
-////            nativeQuery.getSingleResult();
-//
-////            Query query = session.createQuery("" +
-////                    "select tu from TestUser tu where tu.userName = :login", TestUser.class);
-////            query.setParameter("login", login);
-////            return (TestUser)query.getSingleResult();
-//
-//            TypedQuery<TestUser> query = session.createQuery("" +
-//                    "select tu from TestUser tu where tu.userName = :login", TestUser.class);
-//            query.setParameter("login", login);
-//            return query.getSingleResult();
-//        }
-//    }
-
-    @Override
-    public List<Long> batchUpdate(List<HibProduct> products) {
-        return null;
-    }
-
-    @Override
-    public List<Long> batchCreate(List<HibProduct> products) {
-        return null;
-    }
 
     @Override
     public List<HibProduct> search(String searchQuery, Integer limit, Integer offset) {
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();//and like grater equals
-        //1. Select u from TestUser u == select * from test_user
-//        CriteriaQuery<TestUser> q = cb.createQuery(TestUser.class);//start to create query
-//        Root<TestUser> c = q.from(TestUser.class); //from TestUser u
-//        q.select(c); //select u -- select *
-
-
-        //select dictinct * from test_user where userName = :userName and userSurname = :userName order by userName asc
         CriteriaQuery<HibProduct> query = cb.createQuery(HibProduct.class); //here select, where, orderBy, having
         Root<HibProduct> root = query.from(HibProduct.class); //here params
 
-        CriteriaQuery<HibOrder> orderQuery = cb.createQuery(HibOrder.class); //here select, where, orderBy, having
-        Root<HibOrder> roleRoot = orderQuery.from(HibOrder.class); //here params
-
         ParameterExpression<String> param = cb.parameter(String.class);
         Expression<Long> id = root.get(HibProduct_.productId);
-
         query.select(root)
-                .distinct(true)
                 .where(
                         cb.or(
-                                cb.like(root.get("userName"), param),
-                                cb.like(root.get("userSurname"), param)
-                        ),
-                        cb.and(
-                                cb.gt(root.get(HibProduct_.productId), 0L),
-                                id.in(1L
-                                )
-                        ),
-                        cb.between(
-                                root.get(HibProduct_.deliveryDate),
-                                new Timestamp(new Date().getTime()),
-                                new Timestamp(new Date().getTime())
+                                cb.like(root.get("prodName"), param),
+                                cb.like(root.get("prodTitle"), param)
                         )
-//                        cb.between(
-//                                root.get(HibProduct_.price),
-//                                20,
-//                                30
-//                        )
-                ).orderBy(cb.asc(root.get("userName")));
+                ).orderBy(cb.asc(root.get("prodName")));
 
         try (Session session = sessionFactory.openSession()) {
             TypedQuery<HibProduct> resultQuery = session.createQuery(query); //prepared statement on hql
-            resultQuery.setParameter(param, searchQuery);
-            resultQuery.setMaxResults(limit);
-            resultQuery.setFirstResult(offset);
+            resultQuery.setParameter(param, "%"+searchQuery+"%");
+            resultQuery.setMaxResults(Objects.isNull(limit)?1000:limit);
+            resultQuery.setFirstResult(Objects.isNull(offset)?0:offset);
             return resultQuery.getResultList();
         }
     }

@@ -1,6 +1,7 @@
 package fresh.fish.controller.requests;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 public class ProductCreateRequest {
 
@@ -13,7 +14,7 @@ public class ProductCreateRequest {
     private Long amount;
     private String lot;
     private String productionPlace;
-    private Timestamp deliveryDate;
+    private Date deliveryDate;
     private Long costPrice;
     private Long price;
 
@@ -92,11 +93,11 @@ public class ProductCreateRequest {
         this.productionPlace = productionPlace;
     }
 
-    public Timestamp getDeliveryDate() {
+    public Date getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Timestamp deliveryDate) {
+    public void setDeliveryDate(Date deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 

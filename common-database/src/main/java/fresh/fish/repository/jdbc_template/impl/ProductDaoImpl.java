@@ -105,8 +105,8 @@ public class ProductDaoImpl implements ProductDao {
 
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("query", "%" + query + "%");
-        params.addValue("lim", (Objects.isNull(limit)?10000:limit));
-        params.addValue("off", (Objects.isNull(offset)?0:limit));
+        params.addValue("lim", (Objects.isNull(limit)?1000:limit));
+        params.addValue("off", (Objects.isNull(offset)?0:offset));
 
         return namedParameterJdbcTemplate.query(searchQuery, params, this::getProductRowMapper);
     }

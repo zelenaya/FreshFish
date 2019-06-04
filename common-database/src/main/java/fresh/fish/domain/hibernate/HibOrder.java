@@ -3,9 +3,11 @@ package fresh.fish.domain.hibernate;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import fresh.fish.domain.jdbc_template.Customer;
 
 import javax.persistence.*;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -19,12 +21,12 @@ public class HibOrder {
     @Column(name = "order_id")
     private Long orderId;
 
-    @JsonManagedReference
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "customer_id")
-    private HibCustomer customer;
-//@Column(name = "customer_id")
-//private Long customerId;
+//    @JsonManagedReference
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "customer_id")
+//    private HibCustomer customer;
+    @Column(name = "customer_id")
+    private Long customerId;
 
     @Column(name = "pers_discount_id")
     private Long persDiscountId;
@@ -35,31 +37,31 @@ public class HibOrder {
     @Column(name = "order_status_id")
     private Long statusId;
 
-
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "order_products",
             joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
+            inverseJoinColumns = @JoinColumn(name = "product_id"))
     private Set<HibProduct> products = Collections.emptySet();
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "order_promo",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "promo_id")
-    )
-    private Set <HibPromo> promos = Collections.emptySet();
+
+
+//    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    @JoinTable(name = "order_promo",
+//            joinColumns = @JoinColumn(name = "order_id"),
+//            inverseJoinColumns = @JoinColumn(name = "promo_id")
+//    )
+//    private Set <HibPromo> promos = Collections.emptySet();
 
     public HibOrder() {
     }
    //
-    public HibOrder( HibCustomer customer,Long persDiscountId, String currencyCode, Long statusId, Set<HibProduct> products, Set<HibPromo> promos) {
-        this.customer = customer;
+    public HibOrder(HibCustomer customer, Long persDiscountId, String currencyCode, Long statusId, Set<HibProduct> products) {
+        //this.customer = customer;
+        this.customerId = customerId;
         this.persDiscountId = persDiscountId;
         this.currencyCode = currencyCode;
         this.statusId = statusId;
         this.products = products;
-        this.promos = promos;
     }
 
     public Long getOrderId() {
@@ -70,12 +72,21 @@ public class HibOrder {
         this.orderId = orderId;
     }
 
-    public HibCustomer getCustomer() {
-        return customer;
+//    public HibCustomer getCustomer() {
+//        return customer;
+//    }
+//
+//    public void setCustomer(HibCustomer customer) {
+//        this.customer = customer;
+//    }
+
+
+    public Long getCustomerId() {
+        return customerId;
     }
 
-    public void setCustomer(HibCustomer customer) {
-        this.customer = customer;
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 
     public Long getPersDiscountId() {
@@ -110,18 +121,6 @@ public class HibOrder {
         this.products = products;
     }
 
-    public Set<HibPromo> getPromos() {
-        return promos;
-    }
-
-    public void setPromos(Set<HibPromo> promos) {
-        this.promos = promos;
-    }
-
-//    @Override
-//    public String toString() {
-//        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
-//    }
 
 
     @Override
@@ -144,12 +143,11 @@ public class HibOrder {
                 Objects.equals(persDiscountId, hibOrder.persDiscountId) &&
                 Objects.equals(currencyCode, hibOrder.currencyCode) &&
                 Objects.equals(statusId, hibOrder.statusId) &&
-                Objects.equals(products, hibOrder.products) &&
-                Objects.equals(promos, hibOrder.promos);
+                Objects.equals(products, hibOrder.products);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(orderId, persDiscountId, currencyCode, statusId, products, promos);
+        return Objects.hash(orderId, persDiscountId, currencyCode, statusId, products);
     }
 }

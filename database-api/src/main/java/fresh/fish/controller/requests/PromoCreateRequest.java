@@ -1,5 +1,6 @@
 package fresh.fish.controller.requests;
 
+import java.sql.Timestamp;
 import java.util.Objects;
 
 public class PromoCreateRequest {
@@ -11,11 +12,12 @@ public class PromoCreateRequest {
     private Long limitedAmount;
     private Long discount;
     private String promoCode;
+    private Timestamp dateClose;
 
     public PromoCreateRequest() {
     }
 
-    public PromoCreateRequest(Long promoId, String promoName, String promoDescription, Long productId, Long limitedAmount, Long discount, String promoCode) {
+    public PromoCreateRequest(Long promoId, String promoName, String promoDescription, Long productId, Long limitedAmount, Long discount, String promoCode, Timestamp dateClose) {
         this.promoId = promoId;
         this.promoName = promoName;
         this.promoDescription = promoDescription;
@@ -23,6 +25,7 @@ public class PromoCreateRequest {
         this.limitedAmount = limitedAmount;
         this.discount = discount;
         this.promoCode = promoCode;
+        this.dateClose = dateClose;
     }
 
     public Long getPromoId() {
@@ -81,6 +84,14 @@ public class PromoCreateRequest {
         this.promoCode = promoCode;
     }
 
+    public Timestamp getDateClose() {
+        return dateClose;
+    }
+
+    public void setDateClose(Timestamp dateClose) {
+        this.dateClose = dateClose;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -92,7 +103,8 @@ public class PromoCreateRequest {
                 Objects.equals(productId, that.productId) &&
                 Objects.equals(limitedAmount, that.limitedAmount) &&
                 Objects.equals(discount, that.discount) &&
-                Objects.equals(promoCode, that.promoCode);
+                Objects.equals(promoCode, that.promoCode)&&
+                Objects.equals(dateClose, that.dateClose);
     }
 
     @Override
@@ -102,7 +114,7 @@ public class PromoCreateRequest {
 
     @Override
     public String toString() {
-        return "PromoCreateRequest{" +
+        return "Promo: {" +
                 "promoId=" + promoId +
                 ", promoName='" + promoName + '\'' +
                 ", promoDescription='" + promoDescription + '\'' +
@@ -110,6 +122,7 @@ public class PromoCreateRequest {
                 ", limitedAmount=" + limitedAmount +
                 ", discount=" + discount +
                 ", promoCode='" + promoCode + '\'' +
+                ", dateClose=" + dateClose +
                 '}';
     }
 }

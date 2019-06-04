@@ -11,5 +11,6 @@ public interface HibPromoDao extends GenericDao<HibPromo, Long> {
     List<Long> batchUpdate(List<HibPromo> promos);
     List<Long> batchCreate(List<HibPromo> promos);
     List<HibPromo> search(String query, Integer limit, Integer offset);
+    HibPromo findByPromoCode(String promoCode);
 
 }

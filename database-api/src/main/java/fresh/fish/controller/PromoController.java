@@ -11,11 +11,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "/rest/managed/promo")
+@RequestMapping(value = "/rest/promo")
 public class PromoController {
 
     @Autowired
@@ -37,13 +40,13 @@ public class PromoController {
         return new ResponseEntity<>(promo.toString(), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Create new promo action. Please, don't enter text in Russian, my app is frightened it")
+    @ApiOperation(value = "Create new promo action")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Promo> createPromo(@RequestBody PromoCreateRequest request) {
         Promo promo = new Promo();
         setFields(promo, request);
-
+        promo.setDateCreated(new Timestamp(new Date().getTime()));
         Promo savedPromo = promoDao.save(promo);
         return new ResponseEntity<>(savedPromo, HttpStatus.OK);
     }
@@ -68,7 +71,7 @@ public class PromoController {
         return new ResponseEntity<>(promoId, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "You can search promo action by name, but only in English")
+    @ApiOperation(value = "You can search promo action by name")
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Promo>> searchPromo(@ModelAttribute SearchCriteria criteria) {
@@ -89,6 +92,8 @@ public class PromoController {
             promo.setDiscount(req.getDiscount());
         if (!req.getPromoCode().equals("string")&&!req.getPromoCode().isEmpty())
             promo.setPromoCode(req.getPromoCode());
+        if (!Objects.isNull(req.getDateClose()))
+            promo.setDateClose(req.getDateClose());
     }
 
 

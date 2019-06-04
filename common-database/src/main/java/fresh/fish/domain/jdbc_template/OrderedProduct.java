@@ -32,6 +32,14 @@ public class OrderedProduct {
         this.price = price;
     }
 
+    public OrderedProduct(Long productId, Long count, Long promoId, Long price, String productName) {
+        this.productId = productId;
+        this.count = count;
+        this.promoId = promoId;
+        this.price = price;
+        this.productName = productName;
+    }
+
     public Long getProductId() {
         return productId;
     }

@@ -49,9 +49,9 @@ public class HibPromo {
     @Column(name = "update_by_user_id")
     private Long updateByUser;
 
-    @JsonBackReference
-    @ManyToMany(mappedBy = "promos", fetch = FetchType.EAGER)
-    private Set<HibOrder> orders = Collections.emptySet();
+//    @JsonBackReference
+//    @ManyToMany(mappedBy = "promos", fetch = FetchType.EAGER)
+//    private Set<HibOrder> orders = Collections.emptySet();
 
     public HibPromo() {
     }

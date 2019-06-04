@@ -15,6 +15,7 @@ import javax.persistence.criteria.*;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @Qualifier("hibPromoDaoImpl")
@@ -39,8 +40,22 @@ public class HibPromoDaoImpl implements HibPromoDao {
     }
 
     @Override
+    public HibPromo findByPromoCode(String promoCode) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("SELECT hp FROM HibPromo hp " +
+                    "WHERE LOWER(hp.promoCode) LIKE LOWER(:promoCode) AND hp.dateClose IS null", HibPromo.class)
+                    .setParameter("promoCode", promoCode)
+                    .getSingleResult();
+        }
+    }
+
+    @Override
     public void delete(Long id) {
         try (Session session = sessionFactory.openSession()) {
+//            int result = session.createQuery("Delete HibPromo WHERE promoId = :param")
+//                    .setParameter("param", id)
+//                    .executeUpdate();
+
             session.remove(findById(id));
         }
     }
@@ -80,13 +95,6 @@ public class HibPromoDaoImpl implements HibPromoDao {
     @Override
     public List<HibPromo> search(String searchQuery, Integer limit, Integer offset) {
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();//and like grater equals
-        //1. Select u from TestUser u == select * from test_user
-//        CriteriaQuery<TestUser> q = cb.createQuery(TestUser.class);//start to create query
-//        Root<TestUser> c = q.from(TestUser.class); //from TestUser u
-//        q.select(c); //select u -- select *
-
-
-        //select dictinct * from test_user where userName = :userName and userSurname = :userName order by userName asc
         CriteriaQuery<HibPromo> query = cb.createQuery(HibPromo.class); //here select, where, orderBy, having
         Root<HibPromo> root = query.from(HibPromo.class); //here params
 
@@ -96,32 +104,17 @@ public class HibPromoDaoImpl implements HibPromoDao {
         query.select(root)
                 .distinct(true)
                 .where(
-                        cb.or(
-                                cb.like(root.get("userName"), param),
-                                cb.like(root.get("userSurname"), param)
-                        ),
                         cb.and(
-                                cb.gt(root.get(HibPromo_.promoId), 0L),
-                                id.in(1L
+                                cb.like(root.get("promoName"), param),
+                                cb.isNull(root.get(HibPromo_.dateClose))
                                 )
-                        ),
-                        cb.between(
-                                root.get(HibPromo_.dateCreated),
-                                new Timestamp(new Date().getTime()),
-                                new Timestamp(new Date().getTime())
-                        )
-//                        cb.between(
-//                                root.get(HibProduct_.price),
-//                                20,
-//                                30
-//                        )
-                ).orderBy(cb.asc(root.get("userName")));
+                ).orderBy(cb.asc(root.get("promoName")));
 
         try (Session session = sessionFactory.openSession()) {
             TypedQuery<HibPromo> resultQuery = session.createQuery(query);
-            resultQuery.setParameter(param, searchQuery);
-            resultQuery.setMaxResults(limit);
-            resultQuery.setFirstResult(offset);
+            resultQuery.setParameter(param, "%"+searchQuery+"%");
+            resultQuery.setMaxResults(Objects.isNull(limit)?1000:limit);
+            resultQuery.setFirstResult(Objects.isNull(offset)?0:offset);
             return resultQuery.getResultList();
         }
     }
